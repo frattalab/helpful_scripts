@@ -1,6 +1,9 @@
 #this function takes the total rna tables produced by featureCounts, and gives a reasonable output data frame and
 #metadata frame
-make_deseq_dfs = function(total_table, grep_pattern = "_new_readcount", leave_out = ""){
+make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = ""){
+  if(grep_pattern == ""){
+    grep_pattern = paste0(colnames(total_table[,2:length(total_table)]),collapse = "|")
+  }
   #grep pattern is being used to select small parts of this overall
   if(leave_out == ""){
     conv_df = as.data.frame(total_table[,round(.SD), .SDcols = grep(grep_pattern,names(total_table))])
