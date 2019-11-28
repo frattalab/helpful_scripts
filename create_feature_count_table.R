@@ -19,7 +19,7 @@ create_feature_count_table = function(feature_count_folder, suffix = ".Aligned.s
     colnames(wide_feature_counts) = gsub(suffix,"",colnames(wide_feature_counts))
   }
   if(prefix != ""){
-    colnames(wide_dt) = gsub(prefix,"",colnames(wide_dt))
+    colnames(wide_feature_counts) = gsub(prefix,"",colnames(wide_feature_counts))
   }
   return(wide_feature_counts)
 }
