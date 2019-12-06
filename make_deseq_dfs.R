@@ -1,6 +1,6 @@
 #this function takes the total rna tables produced by featureCounts, and gives a reasonable output data frame and
 #metadata frame
-make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = ""){
+make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = "", base_grep = "", contrast_grep = ""){
   if(grep_pattern == ""){
     grep_pattern = paste0(colnames(total_table[,2:length(total_table)]),collapse = "|")
   }
@@ -25,11 +25,16 @@ make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = ""){
     rownames(conv_df) = total_table$gene
   }
   coldata = as.data.table(names(conv_df))
-  coldata[grep("a.a",V1), cond := "base"]
-  coldata[grep("b.a",V1), cond := "during"]
-  coldata[grep("c.a",V1), cond := "post"]
-  coldata[grep("wt",V1), cell := "wt"]
-  coldata[grep("f",V1), cell := "f210i"]
+  if(base_grep == "" & contrast_grep == ""){
+    coldata[grep("a.a",V1), cond := "base"]
+    coldata[grep("b.a",V1), cond := "during"]
+    coldata[grep("c.a",V1), cond := "post"]
+    coldata[grep("wt",V1), cell := "wt"]
+    coldata[grep("f",V1), cell := "f210i"]
+  }else{
+    coldata[grep(base_grep,V1), cond := "base"]
+    coldata[grep(contrast_grep,V1), cond := "contrast"]
+  }
 
   coldata = as.data.frame(coldata[,2:ncol(coldata)])
   rownames(coldata) = names(conv_df)
