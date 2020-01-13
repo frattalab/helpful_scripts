@@ -4,6 +4,8 @@ create_feature_count_table = function(feature_count_folder, suffix = ".Aligned.s
   # feature counts gives you feature coutns and summariues, given a folder name get a list of files that don't contain
   # the word summary
   feature_count_files = grep(list.files(path=feature_count_folder,full.names = TRUE), pattern='summary', inv=T, value=T)
+  # ensure that no directories are brought in
+  feature_count_files = feature_count_files[!file.info(feature_count_files)$isdir]
   # from the list, read them all
   l <- lapply(feature_count_files, fread)
   # make it into a data table
