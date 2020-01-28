@@ -55,6 +55,6 @@ make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = "", base_g
 # this function takes a deseq metadata df, the name you want to call the baseline and contrast conditions and returns the metadata table with
 # a new column called 'comparison' which is a factor with baseline as the first level
 rename_relevel_for_deseq = function(coldata, baseName = "", contrastName = ""){
-  coldata$comparison  = factor(ifelse(three_month_ar20_vs_ar100_meta$cond == "base", baseName, contrastName), levels = c(baseName, contrastName))
+  coldata$comparison  = factor(ifelse(coldata$cond == "base", baseName, contrastName), levels = c(baseName, contrastName))
   return(coldata)
 }
