@@ -1,7 +1,10 @@
 # Basic function to  human to mouse gene names and vice versa
 #give genes as a list , from species is what gene ids you have and to species is what you're going to
 convertGeneListSpecies <- function(genelist, from_species = "hsapiens_gene_ensembl", to_species = "mmusculus_gene_ensembl"){
-  require(biomaRt)
+  if (!require("pacman")) install.packages("pacman")
+  library(pacman)
+  
+  p_load(biomaRt)
   #listDatasets(mart = useMart("ensembl")) if you run this line it will  give you all the datasets you can choose from
   ensembl.from = useMart("ensembl", dataset = from_species)
   ensembl.to = useMart("ensembl", dataset = to_species)
