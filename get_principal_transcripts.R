@@ -14,6 +14,7 @@ download_appris = function(species){
     # or a alternative
 
     appr_anno[grep("PRINCIPAL",V5), Principal := as.integer(str_extract(V5,'[[:digit:]]+'))]
+    appr_anno[!is.na(Principal), NumPrincipal := .N, by = V2]
     return(appr_anno)
 }
 
