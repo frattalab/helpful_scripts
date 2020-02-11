@@ -18,7 +18,7 @@ import getopt, sys, os.path
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:f:o:", ["help", "input=","featureName=","output=",])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:f:o:b:", ["help", "input=","featureName=","output=","biotype="])
     except getopt.GetoptError as err:
         print(err) # will print something like "option -a not recognized"
         usage()
@@ -26,6 +26,7 @@ def main():
     infile = None
     outfile = None
     featName = "gene"
+    genetype = "protein_coding"
 
     for opt, arg in opts:
         if opt in ("-h","--help"):
@@ -38,11 +39,13 @@ def main():
             outfile = arg
         elif opt in ("-f", "--featureName"):
             featName = arg
+        elif opt in ("-b", "--biotype"):
+            genetype = arg
         else:
             assert False, "Unhandled option"
 
     if infile is not None and outfile is not None:
-        run(infile, outfile,featName)
+        run(infile, outfile,featName,genetype)
     else:
         usage()
 
@@ -56,9 +59,11 @@ def usage():
     print("\t-o, --output:\n\t\t Name of the gtf file output file. Directory where the file will be created should exist!")
     print("Optional:")
     print("\t-f, --featureName:\n\t\t This is what you're going to call the feature,default gene (exon, gene, peak, potato whatever you like)")
+    print("\t-b, --biotype:\n\t\t This is what you're going to call the gene biotype")
+
     print("\n30/05/2013. Pedro Furió Tarí. - then modified by ALB 28/01/2020\n")
 
-def run(infile, outfile, featureNameUser):
+def run(infile, outfile, featureNameUser, biotype):
     metaFeatureName = "gene_id "
 
     inf  = open(infile, 'r')
@@ -75,7 +80,7 @@ def run(infile, outfile, featureNameUser):
         #peak = linea_split[3]
 
         #outf.write(chrom + "\tpfurio\tpeak\t" + str(ini_pos) + "\t" + str(fin_pos) + '\t.\t+\t.\tpeak_id "' + peak + '";\n')
-        outf.write(chrom + "\t" + name + "\t" + featureNameUser + "\t" + str(ini_pos) + "\t" + str(fin_pos) + '\t.\t' + strand + "\t.\t" + metaFeatureName + '"' + name + "_" + chrom + "_" + str(ini_pos) + "_" + str(fin_pos) + '";\n')
+        outf.write(chrom + "\t" + name + "\t" + featureNameUser + "\t" + str(ini_pos) + "\t" + str(fin_pos) + '\t.\t' + strand + "\t.\t" + metaFeatureName + '"' + name + "_" + chrom + "_" + str(ini_pos) + "_" + str(fin_pos) + "; gene_biotype " + '"' + str(biotype) +  '"' + ";\n")
 
         cont += 1
 
