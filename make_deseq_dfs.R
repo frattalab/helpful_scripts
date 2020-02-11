@@ -3,6 +3,7 @@
 make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = "", base_grep = "", contrast_grep = ""){
 
   if(grep_pattern == ""){
+
     grep_pattern = paste0(colnames(total_table[,2:length(total_table)]),collapse = "|")
   }
   #grep pattern is being used to select small parts of this overall
