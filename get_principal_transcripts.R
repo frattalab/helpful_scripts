@@ -1,5 +1,5 @@
 
-human = download_appris('human')
+# human = download_appris('human')
 
 download_appris = function(species){
     #read in the appris annotations on principal transcripts
