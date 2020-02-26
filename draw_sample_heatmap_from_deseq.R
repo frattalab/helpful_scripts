@@ -2,6 +2,8 @@
 draw_sample_heatmap_from_deseq = function(deseq_object, normalization = "vst"){
 # this is all essentially copy paste from the DESEQ2 vignette
     library(colorRamps)
+    library(RColorBrewer)
+    library(pheatmap)
     colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
     if(normalization == "poisson"){
         library("PoiClaClu")
