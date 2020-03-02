@@ -10,6 +10,7 @@ create_feature_count_table = function(feature_count_folder, suffix = ".Aligned.s
   # from the list, read them all
   l <- lapply(feature_count_files, fread)
   # make it into a data table
+
   wide_feature_counts = setDT(unlist(l, recursive = FALSE), check.names = TRUE)[]
   # there's only a few columns we really want from this table it's going to be
   # Geneid and the things that labeled by their file name so we do two things
