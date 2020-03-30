@@ -60,3 +60,44 @@ rename_relevel_for_deseq = function(coldata, baseName = "", contrastName = ""){
   coldata$comparison  = factor(ifelse(coldata$cond == "base", baseName, contrastName), levels = c(baseName, contrastName))
   return(coldata)
 }
+
+# this function filters a count table
+filter_count_table = function(count_table){
+  keep <- rowSums(edgeR::cpm(count_table) > 0.5) >= 2
+  print("Filtered Genes by CPM greater than 0.5 in a least 2 samples")
+  print(table(keep))
+  return(count_table[keep, ])
+}
+
+# this function takes the big feature counts table and determines which samples are female
+find_females = function(featureCountsTables, species = "human"){
+  if(species == "human"){
+    gene_table = fread("/Users/annaleigh/Documents/data/reference_genomes/gencode.v31.parsed_names.txt")
+    xist = "XIST"
+  }else if(species == "mouse"){
+    gene_table = fread("/Users/annaleigh/Documents/data/reference_genomes/gencode.vM22.parsed_names.txt")
+    xist = "Xist"
+  }else{
+    print("Species either 'human' or 'mouse")
+    return(1)
+  }
+  # check that the right species was chosen
+  if(sum(featureCountsTables$Geneid %in% gene_table$gene_id) < 10 ){
+    print("are you sure you chose the right species? Nothing found ")
+    return(1)
+  }
+  # --- find all the female samples
+  female_xist = featureCountsTables %>% 
+    left_join(gene_table %>% dplyr::select(gene_id,gene_name) %>% unique(),by = c("Geneid" = "gene_id")) %>% 
+    filter(gene_name == xist) %>% 
+    select_if(is.numeric) %>% select_if( . > 100) %>% colnames()
+  return(female_xist)
+}
+
+# this function adds a metadata column for gender
+add_gender = function(coldata, femalelist){
+  coldata = coldata %>% rownames_to_column("samp") %>% 
+    mutate(sex = ifelse(samp %in% femalelist, "F", "M")) %>% 
+    column_to_rownames('samp')
+  return(coldata)
+}
