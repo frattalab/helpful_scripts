@@ -2,9 +2,12 @@
 create_feature_count_table = function(feature_count_folder, suffix = ".Aligned.sorted.out.bam",prefix = ""){
   library(data.table)
 
-  # feature counts gives you feature coutns and summariues, given a folder name get a list of files that don't contain
-  # the word summary
-  feature_count_files = grep(list.files(path=feature_count_folder,full.names = TRUE), pattern='summary', inv=T, value=T)
+  # feature counts gives you feature coutns and summariues, make sure that all the files end in this pattern
+  # _featureCounts_results.txt
+  feature_count_files = grep(list.files(path=feature_count_folder,full.names = TRUE), pattern='_featureCounts_results.txt', value=T)
+  feature_count_files = grep(feature_count_files,pattern = "summary", invert = T, value = T)
+
+
   # ensure that no directories are brought in
   feature_count_files = feature_count_files[!file.info(feature_count_files)$isdir]
   # from the list, read them all
