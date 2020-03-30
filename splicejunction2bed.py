@@ -86,7 +86,7 @@ def run(infile, outfile, motifON):
         else:
             # convert from one based to zero based with -1
             ini_pos = str(int(linea_split[1]) - 1)
-            fin_pos = str(int(linea_split[2]) - 1)
+            fin_pos = str(int(linea_split[2]) + 1)
             # strand needs to be converted to -/+/*
             strand = linea_split[3]
             # # column 4:  strand (0:  undefined, 1:  +, 2:  -)
