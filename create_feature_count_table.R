@@ -7,13 +7,16 @@ create_feature_count_table = function(feature_count_folder, suffix = ".Aligned.s
   feature_count_files = grep(list.files(path=feature_count_folder,full.names = TRUE), pattern='_featureCounts_results.txt', value=T)
   feature_count_files = grep(feature_count_files,pattern = "summary", invert = T, value = T)
 
-
+#throw an erros if the length is wrong
+  if(length(feature_count_files) == 0){
+    print("Hey there, you don't have any feature counts files, are you sure you did the right folder?")
+    return(1)
+  }
   # ensure that no directories are brought in
   feature_count_files = feature_count_files[!file.info(feature_count_files)$isdir]
   # from the list, read them all
   l <- lapply(feature_count_files, fread)
   # make it into a data table
-
   wide_feature_counts = setDT(unlist(l, recursive = FALSE), check.names = TRUE)[]
   # there's only a few columns we really want from this table it's going to be
   # Geneid and the things that labeled by their file name so we do two things
@@ -30,4 +33,14 @@ create_feature_count_table = function(feature_count_folder, suffix = ".Aligned.s
     colnames(wide_feature_counts) = gsub(prefix,"",colnames(wide_feature_counts))
   }
   return(wide_feature_counts)
+}
+
+calc_rpkm = function(feature_counts_table,species = "human"){
+  
+  gene_lengths = fread("/Users/annaleigh/Documents/data/reference_genomes/gencode.v31_gene_lengths.txt")
+  y <-  edgeR::DGEList(counts=feature_counts_table,genes=gene_lengths)
+  y <-  edgeR::calcNormFactors(y)
+  RPKM <- edgeR::rpkm(y)
+  print(y$samples)
+  return(RPKM)
 }
