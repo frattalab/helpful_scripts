@@ -1,5 +1,12 @@
 Helpful scripts for performing routine analyses
 
+### feature-annotation-overlap.R ###
+
+Basically bedtools intersect but in R. Script that can take an annotation file (GTF/BED, or can use inbuilt annotatr genic annotations) and BED file containing coordinates of features (e.g. iCLIP sites) and report where feature coordinates intersect with annotation coordinates. Outputs tab-separated tablewhere each line contains feature info and info of annotation which which it overlaps. Can also filter for overlaps by 'feature field' (3rd column/field) in provided GTF file (e.g. gene,exon,intron,UTR etc.).
+
+Run ```Rscript feature-annotation-overlap.R -h``` at the command line to get more info on options.
+
+(Stay tuned might add more functionality)
 
 ### check_rg_header.sh ###
 
@@ -35,5 +42,7 @@ Imports the functions from librarySize and creates a csv with mapping stats base
 
 ### TODO's ###
 
+Streamline feature-annotation-overlap.R command line options
+Test feature-annotation-overlap.R with -d option to use inbuilt annotations
 Fix collect_input_stat to operate more flexibly
 Mapping_stat.py should read from the command line not global variables
