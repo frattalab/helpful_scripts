@@ -9,6 +9,10 @@ make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = "", base_g
   #grep pattern is being used to select small parts of this overall
   total_table = as.data.table(total_table, keep.rownames = TRUE)
 
+  if('gene_name' %in% colnames(total_table)){
+    total_table$gene_name = NULL
+    
+  }
   if(leave_out == ""){
     conv_df = as.data.frame(total_table[,round(.SD), 
                                         .SDcols = grep(grep_pattern,names(total_table))])

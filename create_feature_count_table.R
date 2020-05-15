@@ -22,6 +22,9 @@ create_feature_count_table = function(feature_count_folder, suffix = ".Aligned.s
   # Geneid and the things that labeled by their file name so we do two things
   # first when we do this setDT unlist thing names become X.path.to. so we'lre gooing to take the feature counts files and replace the / with .
   selector_list = c("Geneid",names(wide_feature_counts)[grepl("^X",names(wide_feature_counts))])
+  if('gene_name' %in% colnames(wide_feature_counts)){
+    selector_list = c(selector_list, 'gene_name')
+  }
 
 # take only those columns
   wide_feature_counts = wide_feature_counts[,.SD, .SDcols = selector_list]
