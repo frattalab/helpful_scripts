@@ -1,4 +1,8 @@
 Helpful scripts for performing routine analyses
+### how_to_deseq.R ###
+
+This is an explanation of how to use the helper scrpts in this repo to go
+from a folder with the feature_counts output to a basic DE analysis
 
 ### feature-annotation-overlap.R ###
 
