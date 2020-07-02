@@ -12,6 +12,9 @@ Run ```Rscript feature-annotation-overlap.R -h``` at the command line to get mor
 
 (Stay tuned might add more functionality)
 
+### mv_fixed_bams_to_soft_link.sh ###
+Follows on from check_rg_header.sh. If you ran header script in directory containing soft links to the faulty BAMs (very sensible), then this script can match up the fixed header file with original location of the unfixed BAM the corresponding soft link points to. The script then moves the fixed bam to overwrite the faulty BAM in its original location.      
+
 ### check_rg_header.sh ###
 
 Bash script that looks through directory and subdirectories for BAM files that are missing @RG flag at start of read group header and adds @RG accordingly. Used on some older processed data thathad these missing so re-processed BAMs can be used with more recent versions of samtools, pysam etc.
