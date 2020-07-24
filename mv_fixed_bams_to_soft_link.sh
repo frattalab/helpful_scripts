@@ -3,6 +3,37 @@
 ##Bash script to move BAM  to their soft linked location
 #should be ls <command> where command would select the files of choice
 #e.g. searching for all files in current directory, would pass *rg_fixed* IN QUOTES
+
+#https://linuxconfig.org/bash-script-display-usage-and-check-user - nice guide
+display_help() {
+    #why does BASH make me do this...
+    dqt='"'
+    echo
+    echo "Usage: ./mv_fixed_bams_to_soft_link.sh ${dqt}<dir/>*rg_fixed*${dqt}"
+    echo "Author: Sam Bryce-Smith"
+    echo
+    echo "Intended to follow on from my hacky rg_fixing script."
+    echo "If you ran fixing script on soft links to broken BAMs, use this script to mv the fixed files to the original location of corresponding broken BAM"
+    echo "Requires 1 positional argument that tells ls how to find the find the fixed BAMs, enclosed in DOUBLE QUOTES."
+    echo
+    echo "Example call: bash mv_fixed_bams_to_soft_link.sh ${dqt}*rg_fixed*${dqt}"
+    
+    echo "Defines fixed files in current directory as files containing rg_fixed string"
+    echo
+    echo "Note: This script will prompt you to confirm the moves before executing"
+    echo
+    echo "-h/--help Print this help message and exit"
+    echo
+}
+
+
+if [[ ( $@ == "--help") ||  $@ == "-h" ]] 
+    then 
+        display_help
+        exit 0
+    fi 
+
+
 rg_ls_command=$1
 
 #echo $rg_ls_command
@@ -11,35 +42,36 @@ rg_ls_command=$1
 truncate -s 0 fixed_bams_to_move_list.txt
 
 
- ls ${rg_ls_command} | for i in $(cat -); do
-   fixed_file_name=$(echo $i | cut -d. -f1) #get rid of exrention
-   original_name=${fixed_file_name%"_rg_fixed"} # strip _rg_fixed suffix from bam name - gets name of original file
-   ext=$(echo $i | awk -F "." '{for (i=2; i<=NF; i++) {if ($i !="") {printf "."$i};}}') #gets extension of file in question (up to two e.g. .bam.bai)
-   #https://stackoverflow.com/questions/8984720/awk-joining-n-fields-with-delimiter
-   #echo 'fixed file name is' ${fixed_file_name}${ext}
+ls ${rg_ls_command} | for i in $(cat -); do
+    fixed_file_name=$(echo $i | cut -d. -f1) #get rid of exrention
+    original_name=${fixed_file_name%"_rg_fixed"} # strip _rg_fixed suffix from bam name - gets name of original file
+    ext=$(echo $i | awk -F "." '{for (i=2; i<=NF; i++) {if ($i !="") {printf "."$i};}}') #gets extension of file in question (up to two e.g. .bam.bai)
+    #https://stackoverflow.com/questions/8984720/awk-joining-n-fields-with-delimiter
+    #echo 'fixed file name is' ${fixed_file_name}${ext}
+    
+    #original name should be a soft link to the original location - want to move fixed file to this location
+    #if ll <original_name> , the last field returned provides path to which soft link points
+    #.bam.bai for original files are not linked - need to add .bai to path to corresponding .bam file
+    if [[ "$ext" == ".bam" ]]
+    then
 
-   #original name should be a soft link to the original location - want to move fixed file to this location
-   #if ll <original_name> , the last field returned provides path to which soft link points
-   #.bam.bai for original files are not linked - need to add .bai to path to corresponding .bam file
-   if [[ "$ext" == ".bam" ]]
-   then
+        original_location=$(ls -l ${original_name}${ext} | awk '{print $NF}')
+        #echo 'original location is' ${original_location}
+        echo ${i} ${original_location} >> fixed_bams_to_move_list.txt
 
-     original_location=$(ls -l ${original_name}${ext} | awk '{print $NF}')
-     #echo 'original location is' ${original_location}
-     echo ${i} ${original_location} >> fixed_bams_to_move_list.txt
+    elif [[ $ext == ".bam.bai" ]]
+    then
 
-   elif [[ $ext == ".bam.bai" ]]
-   then
+        original_bam_location=$(ls -l ${original_name}.bam | awk '{print $NF}')
+        original_index_location="${original_bam_location}.bai"
+        #echo 'original index location is' $original_index_location
+        echo ${i} ${original_index_location} >> fixed_bams_to_move_list.txt
+    fi
 
-     original_bam_location=$(ls -l ${original_name}.bam | awk '{print $NF}')
-     original_index_location="${original_bam_location}.bai"
-     #echo 'original index location is' $original_index_location
-     echo ${i} ${original_index_location} >> fixed_bams_to_move_list.txt
-   fi
-
- done
+done
 
 echo 'the following commands will be performed'
+echo
 #https://stackoverflow.com/questions/7551991/add-a-new-column-to-the-file
 awk 'BEGIN{FS=OFS=" "}{print "mv" OFS $0}' fixed_bams_to_move_list.txt
 
