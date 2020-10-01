@@ -41,7 +41,7 @@ def main():
                 tot = sum(int(line.split("\t")[count_column]) for line in infile)
             except ValueError:
                 print("%s does not have a column %d" % (file_name,count_column))
-        print([file_name,tot])
+
         output_file.write("%s,%d\n" % (file_name,tot))
     output_file.close()
 
