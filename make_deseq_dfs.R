@@ -1,6 +1,10 @@
 #this function takes the total rna tables produced by featureCounts, and gives a reasonable output data frame and
 #metadata frame
-make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = "", base_grep = "", contrast_grep = ""){
+make_deseq_dfs = function(total_table, 
+                          grep_pattern = "", 
+                          leave_out = "", 
+                          base_grep = "", 
+                          contrast_grep = ""){
 
   if(grep_pattern == ""){
 
@@ -35,12 +39,9 @@ make_deseq_dfs = function(total_table, grep_pattern = "", leave_out = "", base_g
     rownames(conv_df) = total_table$gene
   }
   coldata = as.data.table(names(conv_df))
+  
   if(base_grep == "" & contrast_grep == ""){
-    coldata[grep("a.a",V1), cond := "base"]
-    coldata[grep("b.a",V1), cond := "during"]
-    coldata[grep("c.a",V1), cond := "post"]
-    coldata[grep("wt",V1), cell := "wt"]
-    coldata[grep("f",V1), cell := "f210i"]
+    stop("Where are your greps gurl?")
   }else if(base_grep != ""){
     coldata[grep(base_grep,V1), cond := "base"]
   }else if(contrast_grep != ""){
@@ -64,6 +65,7 @@ rename_relevel_for_deseq = function(coldata, baseName = "", contrastName = ""){
   coldata$comparison  = factor(ifelse(coldata$cond == "base", baseName, contrastName), levels = c(baseName, contrastName))
   return(coldata)
 }
+
 
 # this function filters a count table
 filter_count_table = function(count_table){

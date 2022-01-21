@@ -1,7 +1,6 @@
 run_standard_deseq = function(folder_of_featurecounts, 
                                base_grep = "Ctrl",
                                contrast_grep = "TDPKD", 
-                              prefix = "", 
                               grep_pattern = "",
                               suffix = ".Aligned.sorted.out.bam",
                               baseName = "control",
@@ -17,7 +16,6 @@ run_standard_deseq = function(folder_of_featurecounts,
     #source will bring the functions in these Rscripts into the current environment
     source(create_feature_path)
     source(make_deseq_path)
-    
     # this function creates a table wtih the first column being Geneid, then each
     #column being the count in a sample, and the final column being the gene name
     #it takes as an input the folder path where all the feature_counts files are
@@ -25,22 +23,19 @@ run_standard_deseq = function(folder_of_featurecounts,
     #is the bam suffix. Typically the bam suffix if it was aligned through
     #our most recent version of the pipeline will be .Aligned.sorted.out.bam
     #this table will be the input to our next function
-    timecourse_feature = create_feature_count_table(folder_of_featurecounts,
-                                                    prefix = prefix,
-                                                    suffix = suffix)
+    timecourse_feature = create_feature_count_table(folder_of_featurecounts,suffix = suffix)
     
+    
+    result = make_deseq_dfs(timecourse_feature,
+                   grep_pattern = grep_pattern,
+                   base_grep = base_grep, 
+                   contrast_grep = contrast_grep)
 
     #but we don't want that for now
-    timecourse_counts = make_deseq_dfs(timecourse_feature,
-                                       grep_pattern = grep_pattern,
-                                       base_grep = base_grep, 
-                                       contrast_grep = contrast_grep)$conv_df #note the $ we're only take one item of the list
+    timecourse_counts = result$conv_df #note the $ we're only take one item of the list
     
     
-    timecourse_meta = make_deseq_dfs(timecourse_feature, 
-                                     grep_pattern = grep_pattern,
-                                     base_grep = base_grep, 
-                                     contrast_grep = contrast_grep)$coldata #note the $ we're only take one item of the list
+    timecourse_meta = result$coldata #note the $ we're only take one item of the list
     
     
     # When you do DESeq2, you should remove genes with very low counts,
@@ -77,6 +72,7 @@ run_standard_deseq = function(folder_of_featurecounts,
     results(dds_timecourse)
     #and then we can get a summary with summary on results
     results(dds_timecourse) %>% summary()
+    
     #we can pull the results data frame out and use the feature_counts table to 
     #append the gene_names back on like this
 
@@ -87,11 +83,25 @@ run_standard_deseq = function(folder_of_featurecounts,
             left_join(timecourse_feature %>% dplyr::select(Geneid,gene_name)) %>% 
             as.data.table()
     }else{
-        res_timecourse = results(dds_timecourse) %>% 
+        
+       df <- results(dds_timecourse) %>% 
             as.data.frame() %>% 
-            rownames_to_column('Geneid') %>% 
-            separate(Geneid,"ensgene") %>% 
-            left_join(annotables::grch38 %>% dplyr::select(ensgene,symbol)) %>% 
+            rownames_to_column('Geneid') 
+       
+       human <- df %>% 
+           dplyr::slice(1) %>% 
+           pull(Geneid) %>% 
+           grepl("^ENSG",.)
+        
+        if(human){
+            print("This looks like human")
+            annotation <- annotables::grch38
+        }else{
+            annotation <- annotables::grcm38
+        }
+        
+       res_timecourse <- df
+            left_join(annotation %>% dplyr::select(ensgene,symbol)) %>% 
             as.data.table() %>% 
             dplyr::rename(gene_name = symbol)
     }
