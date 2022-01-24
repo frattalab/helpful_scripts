@@ -7,15 +7,17 @@ go_on_module = function(cem_object, species = "hsa", module = "M1", de_dataframe
         return(1)
     }
     if(species == "hsa"){
-        gene_mart_map = as.data.table(clean_names(fread("/Users/annaleigh/Documents/data/reference_genomes/human_gene_mart_export.txt")))
+        gene_mart_map = annotables::grch38
         
     }else if(species == "mmu"){
-        gene_mart_map = as.data.table(clean_names(fread("/Users/annaleigh/Documents/data/reference_genomes/mouse_gene_mart_export.txt")))
+        gene_mart_map = annotables::grcm38
     }
-    module_table = module_table %>% left_join(gene_mart_map,
-                                              by = c("genes" = "gene_stable_id_version")) %>% 
+
+        module_table = module_table %>% left_join(gene_mart_map %>% dplyr::select(entrez ,symbol),
+                                              by = c("genes" = "symbol")) %>% 
         as.data.table()
-    mgenes = module_table[modules == module & !is.na(ncbi_gene_id),ncbi_gene_id]
+    
+    mgenes = module_table[modules == module & !is.na(entrez),entrez]
 
     if(de_dataframe != ""){
         
@@ -28,14 +30,14 @@ go_on_module = function(cem_object, species = "hsa", module = "M1", de_dataframe
     )
 
     if(species == "hsa"){
-        goenrich = enrichGO(mgenes,OrgDb = 'org.Hs.eg.db',ont = "ALL")
+        goenrich = clusterProfiler::enrichGO(mgenes,OrgDb = 'org.Hs.eg.db',ont = "ALL")
         
-        go_module = setReadable(goenrich,'org.Hs.eg.db', 'ENTREZID')
+        go_module = clusterProfiler::setReadable(goenrich,'org.Hs.eg.db', 'ENTREZID')
         
     }else if(species == "mmu"){
-        goenrich = enrichGO(mgenes,OrgDb = 'org.Mm.eg.db',ont = "ALL")
+        goenrich = clusterProfiler::enrichGO(mgenes,OrgDb = 'org.Mm.eg.db',ont = "ALL")
         
-        go_module = setReadable(goenrich,'org.Mm.eg.db', 'ENTREZID')
+        go_module = clusterProfiler::setReadable(goenrich,'org.Mm.eg.db', 'ENTREZID')
     }
     temp = list(go_module,mgenes_fold)
     names(temp) = c("go_module","foldChange")
