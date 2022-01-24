@@ -31,8 +31,11 @@ generate_pheatmaps <-  function(standard_deseq_output, gene_ids){
     
     
     ph_annotation <- as.data.frame(colData(standard_deseq_output$deseq_obj)) %>% 
-        dplyr::select(comparison) #if you just check what this: colData(one_hour_dds$deseq_obj) you see that we have 2 additional columns which we don't want on a heatmap
+        dplyr::select(-c(cond,sizeFactor)) #if you just check what this: colData(one_hour_dds$deseq_obj) you see that we have 2 additional columns which we don't want on a heatmap
     
+    if("replaceable" %in% colnames(ph_annotation)){
+        ph_annotation$replaceable = NULL
+    }
 
     #I'm going to select the geneids for the top n upregulated genes
     norm_counts <- assay(normalized_deseq_obj) %>% #Normalized counts are stored in the "assay" slot on this object
@@ -45,7 +48,7 @@ generate_pheatmaps <-  function(standard_deseq_output, gene_ids){
         column_to_rownames('gene_name') %>% #the heatmap function pheatmap uses rownames for plotting
         dplyr::select(-Geneid) #get rid of Geneid column because we want a full numeric data.frame
     
-    
+
     the_heatmap = pheatmap(norm_counts, 
                        annotation_col=ph_annotation)
     
