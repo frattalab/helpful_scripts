@@ -1,4 +1,4 @@
-
+library(DESeq2)
 DESeqDataSetFromIRFinder <-  function(filePaths,designMatrix,designFormula){
     res=c()
     libsz=c()
@@ -81,6 +81,7 @@ make_deframe_irfinder <-  function(ir_top_level,
 
 
 run_deseq_ir = function(paths, experiment){
+    
     metaList=DESeqDataSetFromIRFinder(filePaths=paths, designMatrix=experiment, designFormula=~1)
     dds = metaList$DESeq2Object                       # Extract DESeq2 Object with normalization factors ready
 

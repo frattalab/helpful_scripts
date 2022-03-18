@@ -44,7 +44,7 @@ generate_pheatmaps <-  function(standard_deseq_output, gene_ids){
         filter(Geneid %in% gene_ids) %>% #select these genes
         left_join(standard_deseq_output$results_table %>% #left join from the results table to get the gene_name
                       dplyr::select(Geneid,gene_name)) %>% #notice that i'm selecting inside the left_join
-        mutate(gene_name = make.unique(gene_name)) %>% #this is to save me from having to do this incase the gene_name are like repeated
+        mutate(gene_name = make.unique(gene_name)) %>% #this is to save me from having to do this in case the gene_name are like repeated
         column_to_rownames('gene_name') %>% #the heatmap function pheatmap uses rownames for plotting
         dplyr::select(-Geneid) #get rid of Geneid column because we want a full numeric data.frame
     
